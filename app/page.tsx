@@ -5,6 +5,7 @@ import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 import { Footer } from "@/components/footer"
 import { WaitlistModal } from "@/components/waitlist-modal"
+import { CareersModal } from "@/components/careers-modal"
 import { InteractiveDemo } from "@/components/interactive-demo"
 import { PlatformFeatures } from "@/components/platform-features"
 import { FAQSection } from "@/components/faq-section"
@@ -13,17 +14,16 @@ import { Sparkles } from "lucide-react"
 
 export default function HomePage() {
   const [waitlistOpen, setWaitlistOpen] = useState(false)
+  const [careersOpen, setCareersOpen] = useState(false)
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header onJoinWaitlist={() => setWaitlistOpen(true)} />
+      <Header onJoinWaitlist={() => setWaitlistOpen(true)} onOpenCareers={() => setCareersOpen(true)} />
       <main className="flex-1">
         <HeroSection onJoinWaitlist={() => setWaitlistOpen(true)} />
 
-        {/* Demo first */}
+        {/* Moved Demo above Features */}
         <InteractiveDemo />
-
-        {/* Then Why Tuno */}
         <PlatformFeatures />
 
         <section className="py-20 bg-secondary/20">
@@ -50,6 +50,7 @@ export default function HomePage() {
       <Footer />
 
       <WaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
+      <CareersModal open={careersOpen} onOpenChange={setCareersOpen} />
     </div>
   )
 }

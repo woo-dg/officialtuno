@@ -16,33 +16,28 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
   const lightingRef = useRef<HTMLDivElement>(null)
   const lastUpdate = useRef(0)
   const [scrollY, setScrollY] = useState(0)
-  const [isLarge, setIsLarge] = useState(false) // lg and up
 
-  // Track viewport size to enable effects only on lg+
   useEffect(() => {
-    const check = () => setIsLarge(window.innerWidth >= 1024) // Tailwind lg breakpoint
-    check()
-    window.addEventListener("resize", check, { passive: true })
-    return () => window.removeEventListener("resize", check)
-  }, [])
-
-  // Mouse lighting effect (lg+ only)
-  useEffect(() => {
-    if (!isLarge) return
-
     let rafId: number
+
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now()
-      if (now - lastUpdate.current < 16) return
+      if (now - lastUpdate.current < 16) {
+        return
+      }
       lastUpdate.current = now
 
-      if (rafId) cancelAnimationFrame(rafId)
+      if (rafId) {
+        cancelAnimationFrame(rafId)
+      }
+
       rafId = requestAnimationFrame(() => {
         if (heroRef.current && lightingRef.current) {
           const rect = heroRef.current.getBoundingClientRect()
           const x = e.clientX - rect.left
           const y = e.clientY - rect.top
-          lightingRef.current.style.background = `radial-gradient(600px circle at ${x}px ${y}px, rgba(0,0,0,0.08), transparent 40%)`
+
+          lightingRef.current.style.background = `radial-gradient(600px circle at ${x}px ${y}px, rgba(0, 0, 0, 0.08), transparent 40%)`
         }
       })
     }
@@ -50,17 +45,20 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
     window.addEventListener("mousemove", handleMouseMove, { passive: true })
     return () => {
       window.removeEventListener("mousemove", handleMouseMove)
-      if (rafId) cancelAnimationFrame(rafId)
+      if (rafId) {
+        cancelAnimationFrame(rafId)
+      }
     }
-  }, [isLarge])
+  }, [])
 
-  // Parallax on scroll (lg+ only)
   useEffect(() => {
-    if (!isLarge) return
-    const handleScroll = () => setScrollY(window.scrollY)
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [isLarge])
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,11 +81,9 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
       ref={heroRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-20"
     >
-      {/* Lighting overlay (lg+ only) */}
-      <div ref={lightingRef} className="pointer-events-none absolute inset-0 opacity-30 hidden lg:block" />
+      <div ref={lightingRef} className="pointer-events-none absolute inset-0 opacity-30" />
 
-      {/* Floating widgets (lg+ only) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none hidden lg:block">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {floatingIcons.map(({ Icon, top, left, right, delay, size }, index) => (
           <div
             key={index}
@@ -122,33 +118,19 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
         </p>
 
         <h1
-          className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-4 animate-fade-up"
+          className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6 animate-fade-up text-foreground/90"
           style={{ animationDelay: "0.1s" }}
         >
-          <span
-            className="inline-block animate-glow bg-gradient-to-r from-foreground via-foreground to-foreground bg-clip-text"
-            style={{
-              textShadow: "0 4px 20px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)",
-              letterSpacing: "-0.02em",
-              transform: "scale(1.02)",
-            }}
-          >
-            Tune in to Tuno
-          </span>
+          the shortcut to
+          <br />
+          &ldquo;ohhh i get it&rdquo;
         </h1>
-
-        <h2
-          className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight mb-6 animate-fade-up text-foreground/80"
-          style={{ animationDelay: "0.15s" }}
-        >
-          the shortcut to &ldquo;ohhh i get it&rdquo;
-        </h2>
 
         <p
           className="text-base md:text-lg lg:text-xl text-foreground/70 mb-12 max-w-3xl mx-auto font-medium animate-fade-up"
           style={{ animationDelay: "0.2s" }}
         >
-          Connect with verified <span className="font-bold">tutors</span> in ~30 seconds. Pay by the minute — only 40 cents.
+          Connect with verified tutors in ~30 seconds. Pay by the minute — only 40 cents.
         </p>
 
         <form
@@ -176,12 +158,12 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
                     placeholder="What topic or question do you need help with?"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="flex-1 w-full min-w-0 md:min-w-[400px] border-0 bg-transparent text-base md:text-lg h-12 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
+                    className="flex-1 min-w-[400px] border-0 bg-transparent text-base md:text-lg h-12 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
                   />
 
-                  <div className="flex items-stretch md:items-center gap-3 w-full md:w-auto">
+                  <div className="flex items-center gap-3">
                     <Select value={subject} onValueChange={setSubject}>
-                      <SelectTrigger className="w-full md:w-[130px] h-11 rounded-full border-2">
+                      <SelectTrigger className="w-[130px] h-11 rounded-full border-2">
                         <SelectValue placeholder="Subject" />
                       </SelectTrigger>
                       <SelectContent>
@@ -195,7 +177,7 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
                     </Select>
 
                     <Select value={level} onValueChange={setLevel}>
-                      <SelectTrigger className="w-full md:w-[130px] h-11 rounded-full border-2">
+                      <SelectTrigger className="w-[130px] h-11 rounded-full border-2">
                         <SelectValue placeholder="Level" />
                       </SelectTrigger>
                       <SelectContent>
@@ -212,7 +194,7 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
             <Button
               type="submit"
               size="lg"
-              className="rounded-full h-12 md:h-[88px] px-6 md:px-8 bg-foreground text-background hover:bg-foreground/90 hover:scale-105 hover:shadow-2xl transition-all duration-300 shadow-lg font-semibold text-base whitespace-nowrap w-full md:w-auto"
+              className="rounded-full h-auto md:h-[88px] px-8 bg-foreground text-background hover:bg-foreground/90 hover:scale-105 hover:shadow-2xl transition-all duration-300 shadow-lg font-semibold text-base whitespace-nowrap"
             >
               Join the Waitlist
             </Button>
