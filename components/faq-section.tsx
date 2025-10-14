@@ -1,0 +1,149 @@
+"use client"
+
+import { useState } from "react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Plus } from "lucide-react"
+
+export function FAQSection() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeCategory, setActiveCategory] = useState("General")
+
+  const categories = ["General", "For Students", "For Tutors", "Pricing", "Technical"]
+
+  const faqs = [
+    {
+      category: "General",
+      question: "How does Tuno work?",
+      answer:
+        "Tuno connects you with verified tutors in ~30 seconds. Simply submit your question, get matched with an expert tutor in your course, and start your session instantly. Pay only for the time you use at 40 cents per minute.",
+    },
+    {
+      category: "Pricing",
+      question: "How much does it cost?",
+      answer:
+        "Tuno charges 40 cents per minute (~$24/hour) with no subscriptions or commitments. Your first 3 minutes are free, and you only pay for the time you actually use. Sessions are billed by the minute with secure escrow.",
+    },
+    {
+      category: "For Students",
+      question: "Are tutors verified?",
+      answer:
+        "Yes! All tutors must upload their transcripts and are verified for the specific courses they tutor. Every session is recorded and reviewed to ensure quality and academic integrity.",
+    },
+    {
+      category: "General",
+      question: "How fast can I get help?",
+      answer:
+        "Most students are matched with a tutor in ~30 seconds. No scheduling required—just submit your request and get instant help whenever you need it, 24/7.",
+    },
+    {
+      category: "For Students",
+      question: "What subjects do you cover?",
+      answer:
+        "We cover all major subjects including Math, Physics, Chemistry, Biology, Computer Science, English, and more. Tutors are matched based on your requested subject and level.",
+    },
+    {
+      category: "For Tutors",
+      question: "How do I become a tutor?",
+      answer:
+        "Join our waitlist and upload your transcript. Once verified, you can start accepting sessions and earning $24/hour. First to accept gets the session—no ranking walls or competition.",
+    },
+    {
+      category: "Technical",
+      question: "Is my session private and secure?",
+      answer:
+        "Absolutely. All sessions are conducted on our secure platform with encrypted video calls. Sessions are recorded for quality assurance and academic integrity, but remain private between you and your tutor.",
+    },
+    {
+      category: "For Students",
+      question: "Can I end a session anytime?",
+      answer:
+        "Yes! You have complete control. End the session whenever you're done, and you'll only be charged for the time used. No minimum session length required.",
+    },
+  ]
+
+  const filteredFaqs = faqs.filter(
+    (faq) =>
+      faq.category === activeCategory &&
+      (faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        faq.answer.toLowerCase().includes(searchQuery.toLowerCase())),
+  )
+
+  return (
+    <section className="py-24 bg-background">
+      <div className="container mx-auto px-6 max-w-5xl">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground">FAQ</h2>
+        </div>
+
+        <div className="mb-8">
+          <div className="relative w-full">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Type your question here"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-14 pl-0 pr-14 text-base bg-transparent border-0 border-b-2 border-border outline-none focus:outline-none focus:border-foreground rounded-none text-foreground placeholder:text-muted-foreground transition-colors"
+              />
+              <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-foreground/5 rounded-full transition-colors">
+                <Plus className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-8 border-b border-border">
+          <div className="flex gap-8 overflow-x-auto pb-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`whitespace-nowrap pb-3 text-sm font-medium transition-colors relative ${
+                  activeCategory === category ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {category}
+                {activeCategory === category && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-foreground">{filteredFaqs.length} Results</p>
+        </div>
+
+        <div className="space-y-0 border-t border-border">
+          {filteredFaqs.map((faq, index) => (
+            <Accordion key={index} type="single" collapsible>
+              <AccordionItem value={`item-${index}`} className="border-b border-border">
+                <AccordionTrigger className="hover:no-underline py-6 group">
+                  <div className="flex items-center gap-4 flex-1 text-left">
+                    <div className="w-10 h-10 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 group-hover:border-foreground/30 transition-colors">
+                      <Plus className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <span className="text-base font-normal text-foreground pr-4">{faq.question}</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pl-14 pr-4 pb-6">
+                  <p className="text-base text-muted-foreground leading-relaxed">{faq.answer}</p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <p className="text-muted-foreground">
+            Still have questions?{" "}
+            <a href="mailto:support@tuno.com" className="text-foreground font-semibold hover:underline">
+              Contact us
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
