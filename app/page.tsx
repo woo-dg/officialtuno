@@ -18,37 +18,73 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header onJoinWaitlist={() => setWaitlistOpen(true)} onOpenCareers={() => setCareersOpen(true)} />
-      <main className="flex-1">
+      {/* Fixed header already handles its own responsiveness */}
+      <Header
+        onJoinWaitlist={() => setWaitlistOpen(true)}
+        onOpenCareers={() => setCareersOpen(true)}
+      />
+
+      {/* Add top padding so content isn't hidden behind fixed header */}
+      <main className="flex-1 pt-20 sm:pt-24">
+        {/* Hero stays first */}
         <HeroSection onJoinWaitlist={() => setWaitlistOpen(true)} />
 
-        {/* Moved Demo above Features */}
-        <InteractiveDemo />
-        <PlatformFeatures />
+        {/* Demo above features with responsive vertical spacing */}
+        <section aria-labelledby="demo-title" className="py-14 sm:py-16 md:py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 id="demo-title" className="sr-only">
+              Interactive demo
+            </h2>
+            <InteractiveDemo />
+          </div>
+        </section>
 
-        <section className="py-20 bg-secondary/20">
-          <div className="container mx-auto px-6 text-center">
-            <div className="max-w-3xl mx-auto">
+        <section aria-labelledby="features-title" className="py-14 sm:py-16 md:py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 id="features-title" className="sr-only">
+              Platform features
+            </h2>
+            <PlatformFeatures />
+          </div>
+        </section>
+
+        {/* CTA section: responsive padding, widths, and readable text on small screens */}
+        <section className="py-16 sm:py-18 md:py-20 bg-secondary/20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-xl text-center">
               <Button
                 size="lg"
                 onClick={() => setWaitlistOpen(true)}
-                className="h-16 px-12 text-xl rounded-full bg-foreground text-background hover:bg-foreground/90 hover:scale-105 hover:shadow-2xl transition-all duration-300 font-bold group"
+                className="h-14 sm:h-16 px-6 sm:px-10 text-base sm:text-lg md:text-xl rounded-full bg-foreground text-background hover:bg-foreground/90 motion-safe:hover:scale-105 hover:shadow-2xl transition-all duration-300 font-bold group w-full sm:w-auto"
+                aria-label="Tutors, join the waitlist now"
               >
-                <Sparkles className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />
-                Tutors, Join Waitlist Now and get future perks!!
-                <Sparkles className="w-6 h-6 ml-3 group-hover:-rotate-12 transition-transform" />
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3 group-hover:rotate-12 transition-transform" />
+                <span className="whitespace-normal sm:whitespace-nowrap">
+                  Tutors, Join Waitlist Now & get future perks!
+                </span>
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 ml-2 sm:ml-3 group-hover:-rotate-12 transition-transform" />
               </Button>
-              <p className="mt-6 text-sm text-muted-foreground">
-                Be among the first tutors on our platform and receive exclusive benefits
+
+              <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Be among the first tutors on our platform and receive exclusive benefits.
               </p>
             </div>
           </div>
         </section>
 
-        <FAQSection />
+        <section id="faq" aria-labelledby="faq-title" className="py-14 sm:py-16 md:py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 id="faq-title" className="sr-only">
+              Frequently asked questions
+            </h2>
+            <FAQSection />
+          </div>
+        </section>
       </main>
+
       <Footer />
 
+      {/* Modals */}
       <WaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
       <CareersModal open={careersOpen} onOpenChange={setCareersOpen} />
     </div>
