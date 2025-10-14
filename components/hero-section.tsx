@@ -16,14 +16,22 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
   const lightingRef = useRef<HTMLDivElement>(null)
   const lastUpdate = useRef(0)
   const [scrollY, setScrollY] = useState(0)
+  const [isLarge, setIsLarge] = useState(false) // lg and up
 
-  // Mouse lighting (desktop only)
+  // Track viewport size to enable effects only on lg+
   useEffect(() => {
-    let rafId: number
-    const isDesktop = () => window.matchMedia("(min-width: 768px)").matches
+    const check = () => setIsLarge(window.innerWidth >= 1024) // Tailwind lg breakpoint
+    check()
+    window.addEventListener("resize", check, { passive: true })
+    return () => window.removeEventListener("resize", check)
+  }, [])
 
+  // Mouse lighting effect (lg+ only)
+  useEffect(() => {
+    if (!isLarge) return
+
+    let rafId: number
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDesktop()) return
       const now = Date.now()
       if (now - lastUpdate.current < 16) return
       lastUpdate.current = now
@@ -34,7 +42,7 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
           const rect = heroRef.current.getBoundingClientRect()
           const x = e.clientX - rect.left
           const y = e.clientY - rect.top
-          lightingRef.current.style.background = `radial-gradient(600px circle at ${x}px ${y}px, rgba(0, 0, 0, 0.08), transparent 40%)`
+          lightingRef.current.style.background = `radial-gradient(600px circle at ${x}px ${y}px, rgba(0,0,0,0.08), transparent 40%)`
         }
       })
     }
@@ -44,20 +52,15 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
       window.removeEventListener("mousemove", handleMouseMove)
       if (rafId) cancelAnimationFrame(rafId)
     }
-  }, [])
+  }, [isLarge])
 
-  // Parallax scroll (desktop only)
+  // Parallax on scroll (lg+ only)
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.matchMedia("(min-width: 768px)").matches) {
-        setScrollY(window.scrollY)
-      } else {
-        setScrollY(0)
-      }
-    }
+    if (!isLarge) return
+    const handleScroll = () => setScrollY(window.scrollY)
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [isLarge])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,10 +83,11 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
       ref={heroRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-20"
     >
-      {/* Lighting + floating widgets: hidden on mobile, shown md+ */}
-      <div ref={lightingRef} className="pointer-events-none absolute inset-0 opacity-30 hidden md:block" />
+      {/* Lighting overlay (lg+ only) */}
+      <div ref={lightingRef} className="pointer-events-none absolute inset-0 opacity-30 hidden lg:block" />
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none hidden md:block">
+      {/* Floating widgets (lg+ only) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none hidden lg:block">
         {floatingIcons.map(({ Icon, top, left, right, delay, size }, index) => (
           <div
             key={index}
@@ -112,17 +116,36 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
         ))}
       </div>
 
-      <div className="relative z-10 text-center container mx-auto px-4 sm:px-6 max-w-7xl">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6 animate-fade-up">
-          <span className="inline-block animate-glow bg-gradient-to-r from-foreground via-foreground to-foreground bg-clip-text">
-            The shortcut to
-            <br />
-            &ldquo;ohhh i get it&rdquo;
+      <div className="relative z-10 text-center px-6 md:px-12 max-w-7xl mx-auto">
+        <p className="text-lg md:text-xl lg:text-2xl text-foreground/70 mb-4 animate-fade-up font-semibold tracking-wide">
+          Stuck at 11:43 P.M?
+        </p>
+
+        <h1
+          className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-4 animate-fade-up"
+          style={{ animationDelay: "0.1s" }}
+        >
+          <span
+            className="inline-block animate-glow bg-gradient-to-r from-foreground via-foreground to-foreground bg-clip-text"
+            style={{
+              textShadow: "0 4px 20px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)",
+              letterSpacing: "-0.02em",
+              transform: "scale(1.02)",
+            }}
+          >
+            Tune in to Tuno
           </span>
         </h1>
 
+        <h2
+          className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight mb-6 animate-fade-up text-foreground/80"
+          style={{ animationDelay: "0.15s" }}
+        >
+          the shortcut to &ldquo;ohhh i get it&rdquo;
+        </h2>
+
         <p
-          className="text-sm md:text-lg lg:text-xl text-foreground/70 mb-10 md:mb-12 max-w-3xl mx-auto font-medium animate-fade-up"
+          className="text-base md:text-lg lg:text-xl text-foreground/70 mb-12 max-w-3xl mx-auto font-medium animate-fade-up"
           style={{ animationDelay: "0.2s" }}
         >
           Connect with verified <span className="font-bold">tutors</span> in ~30 seconds. Pay by the minute — only 40 cents.
@@ -138,7 +161,7 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
               <div className="absolute inset-0 bg-foreground/5 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-500" />
               <div className="relative bg-card border-2 border-border rounded-3xl shadow-2xl overflow-hidden hover:shadow-3xl hover:scale-[1.02] transition-all duration-500">
                 <div className="flex flex-col md:flex-row items-center gap-3 p-4 md:p-6 md:px-8">
-                  <div className="flex items-center gap-2 self-start md:self-auto">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       className="p-2 rounded-full hover:bg-secondary/50 transition-all duration-300 hover:scale-110"
