@@ -1,13 +1,13 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Check } from "lucide-react"
-import { supabase } from "@/lib/supabaseClient"   // <-- make sure this exists
 
 interface WaitlistModalProps {
   open: boolean
@@ -19,52 +19,45 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
   const [email, setEmail] = useState("")
   const [userType, setUserType] = useState<"student" | "tutor">("student")
   const [isReferred, setIsReferred] = useState(false)
-  const [referrerEmail, setReferrerEmail] = useState("")
+  const [referralCode, setReferralCode] = useState("")
   const [submitted, setSubmitted] = useState(false)
-  const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setErrorMsg(null)
+  const handleReferralCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase()
 
-    try {
-      // optional client-side sanity: if checked, require an "@"
-      if (isReferred && referrerEmail && !referrerEmail.includes("@")) {
-        throw new Error("Please enter a valid referrer email.")
+    // Remove any characters that don't match the expected pattern
+    let formatted = ""
+    for (let i = 0; i < value.length && i < 6; i++) {
+      const char = value[i]
+      if (i < 3) {
+        // First 3 characters must be letters
+        if (/[A-Z]/.test(char)) {
+          formatted += char
+        }
+      } else {
+        // Last 3 characters must be numbers
+        if (/[0-9]/.test(char)) {
+          formatted += char
+        }
       }
-
-      const { error } = await supabase.from("waitlist_emails").insert([
-        {
-          name,
-          email,
-          user_type: userType,      // matches your existing column
-          referred: isReferred,     // new column
-          referrer_email: isReferred ? referrerEmail || null : null, // new column
-          source_path: typeof window !== "undefined" ? window.location.pathname : null,
-        },
-      ])
-
-      if (error) throw error
-
-      // success UI
-      setSubmitted(true)
-      setTimeout(() => {
-        setSubmitted(false)
-        setName("")
-        setEmail("")
-        setUserType("student")
-        setIsReferred(false)
-        setReferrerEmail("")
-        onOpenChange(false)
-      }, 3000)
-    } catch (err: any) {
-      console.error(err)
-      setErrorMsg(err?.message ?? "Something went wrong. Try again.")
-    } finally {
-      setIsSubmitting(false)
     }
+
+    setReferralCode(formatted)
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitted(true)
+
+    setTimeout(() => {
+      setSubmitted(false)
+      setName("")
+      setEmail("")
+      setUserType("student")
+      setIsReferred(false)
+      setReferralCode("")
+      onOpenChange(false)
+    }, 3000)
   }
 
   return (
@@ -78,10 +71,11 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
                 Join the waitlist to be the first to connect with tutors instantly.
               </DialogDescription>
             </DialogHeader>
-
             <form onSubmit={handleSubmit} className="space-y-6 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="font-medium">Name</Label>
+                <Label htmlFor="name" className="font-medium">
+                  Name
+                </Label>
                 <Input
                   id="name"
                   type="text"
@@ -94,7 +88,9 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="font-medium">Email</Label>
+                <Label htmlFor="email" className="font-medium">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -152,30 +148,30 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
 
                 {isReferred && (
                   <div className="space-y-2 pl-7 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Label htmlFor="referrerEmail" className="text-sm font-medium text-muted-foreground">
-                      Referrer's Email
+                    <Label htmlFor="referralCode" className="text-sm font-medium text-muted-foreground">
+                      Referral Code
                     </Label>
                     <Input
-                      id="referrerEmail"
-                      type="email"
-                      placeholder="referrer@email.com"
-                      value={referrerEmail}
-                      onChange={(e) => setReferrerEmail(e.target.value)}
+                      id="referralCode"
+                      type="text"
+                      placeholder="Enter referral code (e.g., DAV104)"
+                      value={referralCode}
+                      onChange={handleReferralCodeChange}
                       required={isReferred}
-                      className="h-11"
+                      maxLength={6}
+                      pattern="[A-Z]{3}[0-9]{3}"
+                      title="Referral code must be 3 uppercase letters followed by 3 numbers (e.g., DAV104)"
+                      className="h-11 uppercase tracking-wider font-mono"
                     />
                   </div>
                 )}
               </div>
 
-              {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
-
               <Button
                 type="submit"
-                disabled={isSubmitting}
                 className="w-full h-12 text-base font-semibold rounded-full bg-foreground text-background hover:bg-foreground/90"
               >
-                {isSubmitting ? "Submitting..." : "Join the Waitlist"}
+                Join the Waitlist
               </Button>
             </form>
           </>
