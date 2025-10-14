@@ -49,9 +49,8 @@ export function PlatformFeatures() {
                 1
               </div>
               <p className="text-2xl md:text-3xl text-foreground leading-relaxed">
-                Tuno is a platform that instantly connects students and tutors, to learn any subject, anywhere, anytime.
-                No scheduling, no hassle, just high quality sessions.
-              </p>
+                <span className="font-bold">Remember cramming for a test and realizing you didn’t understand a key concept? </span>
+                Tuno gets you a tutor in seconds for any subject, anywhere. No scheduling, just great sessions.              </p>
             </div>
 
             <div

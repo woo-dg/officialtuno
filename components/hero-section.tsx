@@ -125,7 +125,7 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
           className="text-base md:text-lg lg:text-xl text-foreground/70 mb-12 max-w-3xl mx-auto font-medium animate-fade-up"
           style={{ animationDelay: "0.2s" }}
         >
-          Connect with verified tutors in ~30 seconds. Pay by the minute — only 40 cents.
+            Connect with verified <span className="font-bold">tutors</span> in ~30 seconds. Pay by the minute — only 40 cents.
         </p>
 
         <form

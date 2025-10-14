@@ -20,9 +20,11 @@ export default function HomePage() {
       <main className="flex-1">
         <HeroSection onJoinWaitlist={() => setWaitlistOpen(true)} />
 
-        <PlatformFeatures />
-
+        {/* Demo first */}
         <InteractiveDemo />
+
+        {/* Then Why Tuno */}
+        <PlatformFeatures />
 
         <section className="py-20 bg-secondary/20">
           <div className="container mx-auto px-6 text-center">
