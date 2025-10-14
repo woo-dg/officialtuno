@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Upload, Sparkles, Copy, CheckCircle2, X } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { supabase } from "@/lib/supabaseClient"
 
 interface CareersModalProps {
   open: boolean
@@ -15,17 +16,19 @@ interface CareersModalProps {
 }
 
 export function CareersModal({ open, onOpenChange }: CareersModalProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    age: "",
-  })
+  const [formData, setFormData] = useState({ name: "", email: "", age: "" })
   const [resume, setResume] = useState<File | null>(null)
-  const [fromLinkedIn, setFromLinkedIn] = useState(false)
+
+  const [hasReferralCode, setHasReferralCode] = useState(false)
+  const [inputReferralCode, setInputReferralCode] = useState("")
+  const [referralCodeError, setReferralCodeError] = useState("")
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showThankYou, setShowThankYou] = useState(false)
   const [referralCode, setReferralCode] = useState("")
   const [copied, setCopied] = useState(false)
+
+  const VALID_REFERRAL = "TUN089" // the only valid incoming code
 
   const generateReferralCode = (name: string) => {
     const firstThree = name.replace(/\s/g, "").substring(0, 3).toUpperCase()
@@ -33,36 +36,96 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
     return firstThree + randomNumbers
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    const code = generateReferralCode(formData.name)
-    setReferralCode(code)
-    setShowThankYou(true)
-    setIsSubmitting(false)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) setResume(e.target.files[0])
   }
 
   const handleCopyCode = () => {
+    if (!referralCode) return
     navigator.clipboard.writeText(referralCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleClose = () => {
-    onOpenChange(false)
-    setShowThankYou(false)
+  const resetAll = () => {
     setFormData({ name: "", email: "", age: "" })
     setResume(null)
-    setFromLinkedIn(false)
+    setHasReferralCode(false)
+    setInputReferralCode("")
+    setReferralCodeError("")
+    setShowThankYou(false)
+    setIsSubmitting(false)
     setCopied(false)
+    setReferralCode("")
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setResume(e.target.files[0])
+  const handleClose = () => {
+    resetAll()
+    onOpenChange(false)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setReferralCodeError("")
+
+    if (hasReferralCode) {
+      if (!inputReferralCode.trim()) {
+        setReferralCodeError("Please enter a referral code")
+        return
+      }
+      if (inputReferralCode.toUpperCase() !== VALID_REFERRAL) {
+        setReferralCodeError("Invalid code")
+        return
+      }
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      // Upload resume to private bucket
+      let resumePath: string | null = null
+      if (resume) {
+        if (resume.size > 10 * 1024 * 1024) {
+          throw new Error("Resume is larger than 10MB.")
+        }
+        const safeName = resume.name.replace(/\s+/g, "_").slice(0, 60)
+        const path = `resumes/${crypto.randomUUID()}_${safeName}`
+
+        const { error: uploadErr } = await supabase
+          .storage
+          .from("resumes")
+          .upload(path, resume, {
+            upsert: false,
+            cacheControl: "3600",
+            contentType: resume.type || "application/octet-stream",
+          })
+
+        if (uploadErr) throw uploadErr
+        resumePath = path
+      }
+
+      // Insert application row
+      const { error: insertErr } = await supabase.from("job_applications").insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          age: formData.age ? Number(formData.age) : null,
+          resume_path: resumePath,
+          input_referral_code: hasReferralCode ? inputReferralCode.toUpperCase() : null,
+          referral_code_valid: hasReferralCode ? inputReferralCode.toUpperCase() === VALID_REFERRAL : false,
+        },
+      ])
+
+      if (insertErr) throw insertErr
+
+      // Success UI
+      const code = generateReferralCode(formData.name)
+      setReferralCode(code)
+      setShowThankYou(true)
+    } catch (err: any) {
+      setReferralCodeError(err?.message || "Something went wrong. Please try again.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -87,7 +150,7 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold text-foreground">Thank You!</h2>
                 <p className="text-muted-foreground text-base leading-relaxed">
-                  Your application has been submitted successfully. We'll review it and get back to you soon.
+                  Your application has been submitted successfully. We&apos;ll review it and get back to you soon.
                 </p>
               </div>
 
@@ -114,9 +177,11 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Share this code with friends who might be interested in joining our team. When they apply and mention
-                  your code, you'll both get priority consideration!
+
+                {/* 🔥 Bigger + bold + clearer instruction */}
+                <p className="mt-2 text-foreground font-semibold text-base sm:text-lg leading-relaxed">
+                  Share this code with friends or family who want to join the waitlist as tutors or students.
+                  They should enter this code when they sign up so you both get priority consideration.
                 </p>
               </div>
             </div>
@@ -144,39 +209,16 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
             <div className="mt-5 mb-4 rounded-xl border-2 border-border/40 bg-foreground/[0.02] p-5">
               <h3 className="text-base font-bold text-foreground mb-4 text-center">Minimum Requirements*</h3>
               <div className="grid md:grid-cols-2 gap-x-6 gap-y-3">
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-foreground/60 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Must be 18 years of age or older by December
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-foreground/60 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Proficiency in at least one production-grade programming language (Python, TypeScript, or Go)
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-foreground/60 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Fluency in English, both technical and written communication
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-foreground/60 shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Working knowledge of Git and GitHub workflows, including version control
-                  </p>
-                </div>
+                <Bullet>Must be 18 years of age or older by December</Bullet>
+                <Bullet>Proficiency in Python, TypeScript, or Go</Bullet>
+                <Bullet>Fluency in English (technical & written)</Bullet>
+                <Bullet>Working knowledge of Git & GitHub</Bullet>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5 pt-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-semibold text-foreground">
-                    Full Name
-                  </Label>
+                <Field label="Full Name" id="name">
                   <Input
                     id="name"
                     type="text"
@@ -186,12 +228,9 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
                     required
                     className="h-11 border-2 focus:border-foreground/40 transition-colors"
                   />
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-semibold text-foreground">
-                    Email Address
-                  </Label>
+                <Field label="Email Address" id="email">
                   <Input
                     id="email"
                     type="email"
@@ -201,13 +240,10 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
                     required
                     className="h-11 border-2 focus:border-foreground/40 transition-colors"
                   />
-                </div>
+                </Field>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="age" className="text-sm font-semibold text-foreground">
-                  Age
-                </Label>
+              <Field label="Age" id="age">
                 <Input
                   id="age"
                   type="number"
@@ -215,16 +251,13 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
                   value={formData.age}
                   onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                   required
-                  min="18"
-                  max="100"
+                  min={18}
+                  max={100}
                   className="h-11 border-2 focus:border-foreground/40 transition-colors"
                 />
-              </div>
+              </Field>
 
-              <div className="space-y-2">
-                <Label htmlFor="resume" className="text-sm font-semibold text-foreground">
-                  Resume / CV
-                </Label>
+              <Field label="Resume / CV" id="resume">
                 <div className="relative">
                   <input
                     id="resume"
@@ -247,25 +280,49 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
                     </div>
                   </label>
                 </div>
-              </div>
+              </Field>
 
-              <div className="flex items-center space-x-3 pt-1">
-                <Checkbox
-                  id="linkedin"
-                  checked={fromLinkedIn}
-                  onCheckedChange={(checked) => setFromLinkedIn(checked as boolean)}
-                  className="border-2 w-5 h-5"
-                />
-                <label htmlFor="linkedin" className="text-sm font-medium leading-none cursor-pointer select-none">
-                  Coming from LinkedIn?
-                </label>
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="referral"
+                    checked={hasReferralCode}
+                    onCheckedChange={(checked) => {
+                      setHasReferralCode(!!checked)
+                      setReferralCodeError("")
+                      setInputReferralCode("")
+                    }}
+                    className="border-2 w-5 h-5"
+                  />
+                  <label htmlFor="referral" className="text-sm font-medium leading-none cursor-pointer select-none">
+                    Received referral code? <span className="text-muted-foreground text-xs">(Optional)</span>
+                  </label>
+                </div>
+
+                {hasReferralCode && (
+                  <div className="ml-8 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <Input
+                      id="referralCodeInput"
+                      type="text"
+                      placeholder="Enter your referral code"
+                      value={inputReferralCode}
+                      onChange={(e) => {
+                        setInputReferralCode(e.target.value.toUpperCase())
+                        setReferralCodeError("")
+                      }}
+                      maxLength={6}
+                      className="h-10 border-2 focus:border-foreground/40 transition-colors font-mono tracking-wider"
+                    />
+                    {referralCodeError && <p className="text-xs text-red-600 font-medium">{referralCodeError}</p>}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-4 pt-4">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => handleClose()}
+                  onClick={handleClose}
                   className="flex-1 h-12 rounded-full border-2 hover:bg-foreground/5 font-semibold text-base"
                   disabled={isSubmitting}
                 >
@@ -284,5 +341,26 @@ export function CareersModal({ open, onOpenChange }: CareersModalProps) {
         )}
       </DialogContent>
     </Dialog>
+  )
+}
+
+/** Small presentational helpers */
+function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id} className="text-sm font-semibold text-foreground">
+        {label}
+      </Label>
+      {children}
+    </div>
+  )
+}
+
+function Bullet({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-foreground/60 shrink-0" />
+      <p className="text-sm text-muted-foreground leading-relaxed">{children}</p>
+    </div>
   )
 }
