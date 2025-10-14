@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import { ImageIcon, BookOpen, Calculator, Lightbulb, Atom, Code, PenTool, Globe, Microscope } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -16,15 +15,39 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
   const lightingRef = useRef<HTMLDivElement>(null)
   const lastUpdate = useRef(0)
   const [scrollY, setScrollY] = useState(0)
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
 
-  // detect md+ once and on resize
+  const phrases = [
+    "Stuck at 11:43 P.M?",
+    "Test tomorrow morning?",
+    "Assignment due at midnight?",
+    "Can't figure it out?",
+    "Cramming last minute?",
+    "Confused at 2 A.M?",
+    "Need help right now?",
+  ]
+
+  // rotate phrases
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setCurrentPhraseIndex((p) => (p + 1) % phrases.length)
+        setIsTransitioning(false)
+      }, 300)
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [phrases.length])
+
+  // detect md+ to enable background effects only on larger screens
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)")
-    const setFlag = () => setIsDesktop(mq.matches)
-    setFlag()
-    mq.addEventListener?.("change", setFlag)
-    return () => mq.removeEventListener?.("change", setFlag)
+    const update = () => setIsDesktop(mq.matches)
+    update()
+    mq.addEventListener?.("change", update)
+    return () => mq.removeEventListener?.("change", update)
   }, [])
 
   // mouse glow only on desktop
@@ -79,7 +102,6 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
       ref={heroRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-20"
     >
-      {/* show glow + widgets only on md+ */}
       {isDesktop && <div ref={lightingRef} className="pointer-events-none absolute inset-0 opacity-30" />}
 
       {isDesktop && (
@@ -105,12 +127,19 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
       )}
 
       <div className="relative z-10 text-center container mx-auto px-4 sm:px-6 max-w-7xl">
-        <p className="text-base md:text-xl lg:text-2xl text-foreground/70 mb-3 md:mb-4 animate-fade-up font-semibold tracking-wide">
-          Stuck at 11:43 P.M?
-        </p>
+        {/* rotating phrase */}
+        <div className="relative h-7 sm:h-8 md:h-10 mb-3 sm:mb-4 overflow-hidden">
+          <p
+            className={`text-base sm:text-lg md:text-xl lg:text-2xl text-foreground/70 font-semibold tracking-wide absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+              isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+            }`}
+          >
+            {phrases[currentPhraseIndex]}
+          </p>
+        </div>
 
         <h1
-          className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6 animate-fade-up text-foreground/90"
+          className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-5 md:mb-6 animate-fade-up text-foreground/90"
           style={{ animationDelay: "0.1s" }}
         >
           the shortcut to
@@ -119,7 +148,7 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
         </h1>
 
         <p
-          className="text-sm md:text-lg lg:text-xl text-foreground/70 mb-10 md:mb-12 max-w-3xl mx-auto font-medium animate-fade-up"
+          className="text-sm sm:text-base md:text-lg lg:text-xl text-foreground/70 mb-8 md:mb-12 max-w-3xl mx-auto font-medium animate-fade-up"
           style={{ animationDelay: "0.2s" }}
         >
           Connect with verified tutors in ~30 seconds. Pay by the minute — only 40 cents.
