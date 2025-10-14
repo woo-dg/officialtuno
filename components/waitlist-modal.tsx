@@ -40,7 +40,6 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
     setEmail("");
     setUserType("student");
 
-    // Close after a short beat
     setTimeout(() => {
       onOpenChange(false);
       setStatus("idle");
@@ -49,17 +48,17 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg animate-slide-up bg-white">
+      <DialogContent className="sm:max-w-lg animate-slide-up bg-white px-4 sm:px-6">
         {status !== "ok" ? (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-semibold">Join the waitlist</DialogTitle>
-              <DialogDescription className="text-base">
+              <DialogTitle className="text-xl sm:text-2xl font-semibold">Join the waitlist</DialogTitle>
+              <DialogDescription className="text-sm sm:text-base">
                 Join the waitlist to be the first to connect with tutors instantly.
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6 mt-3 sm:mt-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="font-medium">Name</Label>
                 <Input
@@ -69,7 +68,7 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="h-12"
+                  className="h-11 sm:h-12 text-sm sm:text-base"
                 />
               </div>
 
@@ -82,17 +81,17 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12"
+                  className="h-11 sm:h-12 text-sm sm:text-base"
                 />
               </div>
 
               <div className="space-y-3">
                 <Label className="font-medium">I'm interested as a</Label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                   <Button
                     type="button"
                     variant={userType === "student" ? "default" : "outline"}
-                    className={`h-9 text-sm font-medium rounded-lg transition-all ${
+                    className={`h-9 sm:h-10 text-xs sm:text-sm font-medium rounded-lg transition-all ${
                       userType === "student"
                         ? "bg-foreground text-background hover:bg-foreground/90"
                         : "bg-transparent hover:bg-secondary"
@@ -104,7 +103,7 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
                   <Button
                     type="button"
                     variant={userType === "tutor" ? "default" : "outline"}
-                    className={`h-9 text-sm font-medium rounded-lg transition-all ${
+                    className={`h-9 sm:h-10 text-xs sm:text-sm font-medium rounded-lg transition-all ${
                       userType === "tutor"
                         ? "bg-foreground text-background hover:bg-foreground/90"
                         : "bg-transparent hover:bg-secondary"
@@ -119,23 +118,23 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
               <Button
                 type="submit"
                 disabled={status === "loading"}
-                className="w-full h-12 text-base font-semibold rounded-full bg-foreground text-background hover:bg-foreground/90"
+                className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-full bg-foreground text-background hover:bg-foreground/90"
               >
                 {status === "loading" ? "Adding..." : "Join the Waitlist"}
               </Button>
 
               {status === "err" && (
-                <p className="text-red-600 text-sm">Something went wrong. Try again.</p>
+                <p className="text-red-600 text-xs sm:text-sm">Something went wrong. Try again.</p>
               )}
             </form>
           </>
         ) : (
-          <div className="py-12 text-center">
-            <div className="w-16 h-16 bg-foreground rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-background" />
+          <div className="py-10 sm:py-12 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-foreground rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <Check className="w-7 h-7 sm:w-8 sm:h-8 text-background" />
             </div>
-            <DialogTitle className="text-2xl font-semibold mb-2">You’re on the list!</DialogTitle>
-            <DialogDescription className="text-base">We’ll reach out soon.</DialogDescription>
+            <DialogTitle className="text-xl sm:text-2xl font-semibold mb-1.5 sm:mb-2">You’re on the list!</DialogTitle>
+            <DialogDescription className="text-sm sm:text-base">We’ll reach out soon.</DialogDescription>
           </div>
         )}
       </DialogContent>

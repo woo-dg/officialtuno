@@ -69,13 +69,13 @@ export function FAQSection() {
   )
 
   return (
-    <section className="py-24 bg-background">
-      <div className="container mx-auto px-6 max-w-5xl">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground">FAQ</h2>
+    <section className="py-12 sm:py-16 md:py-24 bg-background">
+      <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">FAQ</h2>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="relative w-full">
             <div className="relative">
               <input
@@ -83,17 +83,17 @@ export function FAQSection() {
                 placeholder="Type your question here"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-14 pl-0 pr-14 text-base bg-transparent border-0 border-b-2 border-border outline-none focus:outline-none focus:border-foreground rounded-none text-foreground placeholder:text-muted-foreground transition-colors"
+                className="w-full h-12 sm:h-14 pl-0 pr-12 sm:pr-14 text-base bg-transparent border-0 border-b-2 border-border outline-none focus:outline-none focus:border-foreground rounded-none text-foreground placeholder:text-muted-foreground transition-colors"
               />
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-foreground/5 rounded-full transition-colors">
-                <Plus className="w-5 h-5 text-foreground" />
+              <button className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-foreground/5 rounded-full transition-colors">
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />
               </button>
             </div>
           </div>
         </div>
 
-        <div className="mb-8 border-b border-border">
-          <div className="flex gap-8 overflow-x-auto pb-2">
+        <div className="mb-6 sm:mb-8 border-b border-border">
+          <div className="flex gap-6 sm:gap-8 overflow-x-auto pb-2">
             {categories.map((category) => (
               <button
                 key={category}
@@ -111,32 +111,32 @@ export function FAQSection() {
           </div>
         </div>
 
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-foreground">{filteredFaqs.length} Results</p>
+        <div className="mb-4 sm:mb-6">
+          <p className="text-xs sm:text-sm font-semibold text-foreground">{filteredFaqs.length} Results</p>
         </div>
 
         <div className="space-y-0 border-t border-border">
           {filteredFaqs.map((faq, index) => (
             <Accordion key={index} type="single" collapsible>
               <AccordionItem value={`item-${index}`} className="border-b border-border">
-                <AccordionTrigger className="hover:no-underline py-6 group">
-                  <div className="flex items-center gap-4 flex-1 text-left">
-                    <div className="w-10 h-10 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 group-hover:border-foreground/30 transition-colors">
-                      <Plus className="w-5 h-5 text-muted-foreground" />
+                <AccordionTrigger className="hover:no-underline py-5 sm:py-6 group">
+                  <div className="flex items-center gap-3 sm:gap-4 flex-1 text-left">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-border flex items-center justify-center flex-shrink-0 group-hover:border-foreground/30 transition-colors">
+                      <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                     </div>
-                    <span className="text-base font-normal text-foreground pr-4">{faq.question}</span>
+                    <span className="text-base font-normal text-foreground pr-2 sm:pr-4">{faq.question}</span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pl-14 pr-4 pb-6">
-                  <p className="text-base text-muted-foreground leading-relaxed">{faq.answer}</p>
+                <AccordionContent className="pl-12 sm:pl-14 pr-3 sm:pr-4 pb-5 sm:pb-6">
+                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{faq.answer}</p>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-muted-foreground">
+        <div className="mt-10 sm:mt-12 text-center">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Still have questions?{" "}
             <a href="mailto:support@tuno.com" className="text-foreground font-semibold hover:underline">
               Contact us
