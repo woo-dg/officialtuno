@@ -1,26 +1,20 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Upload, Link2, Check } from "lucide-react"
-import type React from "react"
-import { supabase } from "@/lib/supabaseClient"
-
-type SubmissionType = "link" | "upload"
-type AudienceRole = "tutor" | "student"
+import Image from "next/image"
 
 export default function ApplyPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [contentLink, setContentLink] = useState("")
   const [file, setFile] = useState<File | null>(null)
-  const [submissionType, setSubmissionType] = useState<SubmissionType>("link")
-  const [audienceRole, setAudienceRole] = useState<AudienceRole | "">("")
+  const [submissionType, setSubmissionType] = useState<"link" | "upload">("link")
   const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -28,73 +22,9 @@ export default function ApplyPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setErrorMsg(null)
-
-    if (!name.trim() || !email.trim()) {
-      setErrorMsg("Name and email are required.")
-      return
-    }
-    if (!audienceRole) {
-      setErrorMsg("Please choose whether you want early access updates as a Tutor or Student.")
-      return
-    }
-    if (submissionType === "link" && !contentLink.trim()) {
-      setErrorMsg("Please include a link to your content.")
-      return
-    }
-    if (submissionType === "upload" && !file) {
-      setErrorMsg("Please upload a file.")
-      return
-    }
-
-    setLoading(true)
-    try {
-      let filePath: string | null = null
-      let fileMime: string | null = null
-      let fileSize: number | null = null
-
-      if (submissionType === "upload" && file) {
-        const ext = file.name.split(".").pop()?.toLowerCase() || "bin"
-        const key = `submissions/${Date.now()}_${crypto.randomUUID()}.${ext}`
-        const { error: uploadErr } = await supabase.storage
-          .from("ugc-uploads")
-          .upload(key, file, { cacheControl: "3600", upsert: false })
-        if (uploadErr) throw uploadErr
-        filePath = key
-        fileMime = file.type || null
-        fileSize = file.size
-      }
-
-      const { error: insertErr } = await supabase.from("ugc_applications").insert({
-        name: name.trim(),
-        email: email.trim(),
-        submission_type: submissionType,
-        content_link: submissionType === "link" ? contentLink.trim() : null,
-        file_path: filePath,
-        file_mime: fileMime,
-        file_size: fileSize,
-        status: "new",
-        audience_role: audienceRole,
-      })
-      if (insertErr) throw insertErr
-
-      const { error: upsertErr } = await supabase
-        .from("waitlist_interest")
-        .upsert(
-          { email: email.trim(), role: audienceRole, source: "ugc_apply" },
-          { onConflict: "email,role" }
-        )
-      if (upsertErr) throw upsertErr
-
-      setSubmitted(true)
-    } catch (err: any) {
-      console.error(err)
-      setErrorMsg(err?.message || "Something went wrong. Please try again.")
-    } finally {
-      setLoading(false)
-    }
+    setSubmitted(true)
   }
 
   if (submitted) {
@@ -126,7 +56,8 @@ export default function ApplyPage() {
               <div className="space-y-4">
                 <h1 className="text-4xl md:text-5xl font-bold">Application Submitted</h1>
                 <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                  Thanks for applying to be a UGC creator for Tuno. We’ll review your submission and follow up by email.
+                  Thank you for applying to be a UGC creator for Tuno. We'll review your submission and get back to you
+                  within 3-5 business days.
                 </p>
               </div>
               <Link href="/">
@@ -143,19 +74,33 @@ export default function ApplyPage() {
   }
 
   return (
-    // ↓ allow page to grow and scroll; prevent sideways scroll only
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-background to-cyan-50/20 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-background to-cyan-50/20">
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(var(--rotate)); }
-          50% { transform: translateY(-15px) rotate(var(--rotate)); }
+          0%, 100% {
+            transform: translateY(0px) rotate(var(--rotate));
+          }
+          50% {
+            transform: translateY(-15px) rotate(var(--rotate));
+          }
         }
+        
         @keyframes zoom {
-          0%, 100% { transform: scale(1) rotate(var(--rotate)); }
-          50% { transform: scale(1.05) rotate(var(--rotate)); }
+          0%, 100% {
+            transform: scale(1) rotate(var(--rotate));
+          }
+          50% {
+            transform: scale(1.05) rotate(var(--rotate));
+          }
         }
-        .float-card { animation: float 6s ease-in-out infinite; }
-        .zoom-card { animation: zoom 4s ease-in-out infinite; }
+        
+        .float-card {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .zoom-card {
+          animation: zoom 4s ease-in-out infinite;
+        }
       `}</style>
 
       <header className="fixed top-0 left-0 right-0 z-50 h-20 bg-background/80 backdrop-blur-sm border-b border-border">
@@ -181,19 +126,20 @@ export default function ApplyPage() {
         </div>
       </header>
 
-      {/* ↓ remove fixed height so content can extend and scroll */}
-      <main className="pt-24 grid grid-cols-1 lg:grid-cols-2 items-start">
-        {/* Left visuals */}
+      {/* Make main fill viewport minus header height for all screens */}
+      <main className="grid grid-cols-1 lg:grid-cols-2 pt-20 min-h-[calc(100vh-5rem)]">
+        {/* Left side - Creative collage (unchanged, hidden on small) */}
         <div className="relative overflow-hidden hidden lg:flex items-center justify-center p-12">
           <div className="absolute inset-0 overflow-hidden">
             <div
-              className="absolute top-[15%] left-[10%] w-64 h-48 bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white float-card"
+              className="absolute top-[15%] left:[10%] w-64 h-48 bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white float-card"
               style={{ "--rotate": "-12deg" } as React.CSSProperties}
             >
               <div className="w-full h-full bg-gradient-to-br from-cyan-100 to-blue-200 flex items-center justify-center">
                 <span className="text-6xl">📚</span>
               </div>
             </div>
+
             <div
               className="absolute top-[45%] right-[15%] w-56 h-40 bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white zoom-card"
               style={{ "--rotate": "6deg" } as React.CSSProperties}
@@ -202,6 +148,7 @@ export default function ApplyPage() {
                 <span className="text-5xl">🎓</span>
               </div>
             </div>
+
             <div
               className="absolute bottom-[20%] left-[15%] w-48 h-36 bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white float-card"
               style={{ "--rotate": "12deg", animationDelay: "1s" } as React.CSSProperties}
@@ -210,13 +157,22 @@ export default function ApplyPage() {
                 <span className="text-4xl">✨</span>
               </div>
             </div>
+
             <svg className="absolute top-[25%] right-[25%] w-32 h-32 text-yellow-400 opacity-80" viewBox="0 0 100 100">
-              <path d="M 20 50 Q 30 20, 50 30 T 80 50" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+              <path
+                d="M 20 50 Q 30 20, 50 30 T 80 50"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeLinecap="round"
+              />
             </svg>
+
             <svg className="absolute bottom-[35%] right-[10%] w-24 h-24 text-pink-300 opacity-70" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="4" />
               <circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" strokeWidth="3" />
             </svg>
+
             <div className="absolute top-[35%] left-[35%] text-6xl transform -rotate-12 drop-shadow-lg">🔥</div>
             <div className="absolute bottom-[40%] right-[35%] text-5xl transform rotate-12 drop-shadow-lg">💡</div>
             <div className="absolute top-[60%] left-[25%] text-4xl transform -rotate-6 drop-shadow-lg">⭐</div>
@@ -236,10 +192,10 @@ export default function ApplyPage() {
           </div>
         </div>
 
-        {/* Right side - Application form */}
-        <div className="flex items-start justify-center px-6 lg:px-12 py-8">
-          <div className="w-full max-w-xl space-y-8 pb-24">
-            <div className="space-y-3">
+        {/* Right side - Application form (scrolls independently if needed) */}
+        <div className="flex items-start lg:items-center justify-center px-6 lg:px-12 py-8">
+          <div className="w-full max-w-xl space-y-8 min-h-[calc(100vh-5rem)] overflow-y-auto pb-8">
+            <div className="space-y-3 pt-2">
               <h1 className="text-3xl lg:text-4xl font-bold text-foreground">UGC Creator Application</h1>
               <p className="text-base text-muted-foreground leading-relaxed">
                 Show us your viral content or platform and join our creator community.
@@ -247,12 +203,6 @@ export default function ApplyPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {errorMsg && (
-                <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                  {errorMsg}
-                </div>
-              )}
-
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-semibold text-foreground">
                   Full Name
@@ -323,11 +273,11 @@ export default function ApplyPage() {
                     type="url"
                     value={contentLink}
                     onChange={(e) => setContentLink(e.target.value)}
-                    placeholder="Link to viral video or social profile"
+                    placeholder="Link to viral video or social media platform"
                     required
                     className="w-full h-12 pl-0 pr-4 text-base bg-transparent border-0 border-b-2 border-border outline-none focus:outline-none focus:border-foreground rounded-none text-foreground placeholder:text-muted-foreground transition-colors"
                   />
-                  <p className="text-xs text-muted-foreground pt-1">Share your best link.</p>
+                  <p className="text-xs text-muted-foreground pt-1">Share your viral content or social media profile</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -358,51 +308,9 @@ export default function ApplyPage() {
                 </div>
               )}
 
-              {/* Mandatory audience choice */}
-              <div className="space-y-2 pt-2">
-                <span className="text-sm font-semibold text-foreground">
-                  I want early access updates as a…
-                </span>
-                <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="audienceRole"
-                      value="tutor"
-                      checked={audienceRole === "tutor"}
-                      onChange={() => setAudienceRole("tutor")}
-                      required
-                      className="accent-foreground"
-                    />
-                    <span className="text-sm">Tutor</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="audienceRole"
-                      value="student"
-                      checked={audienceRole === "student"}
-                      onChange={() => setAudienceRole("student")}
-                      required
-                      className="accent-foreground"
-                    />
-                    <span className="text-sm">Student</span>
-                  </label>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  This helps us send the right updates and build features for your needs. Required to submit.
-                </p>
-              </div>
-
-              <div className="pt-4">
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={loading}
-                  className="w-full h-11 text-base font-semibold"
-                >
-                  {loading ? "Submitting..." : "Submit Application"}
+              <div className="pt-4 pb-2">
+                <Button type="submit" size="lg" className="w-full h-11 text-base font-semibold">
+                  Submit Application
                 </Button>
               </div>
             </form>
