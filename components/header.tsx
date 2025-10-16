@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 
-export function Header({ onJoinWaitlist, onOpenCareers }: { onJoinWaitlist: () => void; onOpenCareers: () => void }) {
+export function Header({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -36,16 +36,17 @@ export function Header({ onJoinWaitlist, onOpenCareers }: { onJoinWaitlist: () =
           </Link>
 
           <div className="flex items-center gap-3">
-            <Button
-              size="lg"
-              onClick={onOpenCareers}
-              variant="outline"
-              className={`rounded-full px-6 border-2 border-foreground/20 hover:border-foreground/40 hover:bg-foreground/5 hover:scale-105 transition-all duration-300 font-semibold ${
-                scrolled ? "h-10 text-sm" : "h-11 text-base"
-              }`}
-            >
-              Careers
-            </Button>
+            <Link href="/apply">
+              <Button
+                size="lg"
+                variant="outline"
+                className={`rounded-full px-6 border-2 border-foreground/20 hover:border-foreground/40 hover:bg-foreground/5 hover:scale-105 transition-all duration-300 font-semibold ${
+                  scrolled ? "h-10 text-sm" : "h-11 text-base"
+                }`}
+              >
+                Apply
+              </Button>
+            </Link>
 
             <Button
               size="lg"
