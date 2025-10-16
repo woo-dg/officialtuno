@@ -17,7 +17,7 @@ export default function ApplyPage() {
   const [contentLink, setContentLink] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [submissionType, setSubmissionType] = useState<SubmissionType>("link")
-  const [audienceRole, setAudienceRole] = useState<AudienceRole | "">("") // NEW
+  const [audienceRole, setAudienceRole] = useState<AudienceRole | "">("")
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -32,7 +32,6 @@ export default function ApplyPage() {
     e.preventDefault()
     setErrorMsg(null)
 
-    // validation
     if (!name.trim() || !email.trim()) {
       setErrorMsg("Name and email are required.")
       return
@@ -56,7 +55,6 @@ export default function ApplyPage() {
       let fileMime: string | null = null
       let fileSize: number | null = null
 
-      // Upload first if needed
       if (submissionType === "upload" && file) {
         const ext = file.name.split(".").pop()?.toLowerCase() || "bin"
         const key = `submissions/${Date.now()}_${crypto.randomUUID()}.${ext}`
@@ -69,7 +67,6 @@ export default function ApplyPage() {
         fileSize = file.size
       }
 
-      // 1) Insert full application (includes audience role)
       const { error: insertErr } = await supabase.from("ugc_applications").insert({
         name: name.trim(),
         email: email.trim(),
@@ -79,20 +76,15 @@ export default function ApplyPage() {
         file_mime: fileMime,
         file_size: fileSize,
         status: "new",
-        audience_role: audienceRole, // NEW
+        audience_role: audienceRole,
       })
       if (insertErr) throw insertErr
 
-      // 2) Upsert skinny waitlist record for VC-friendly counts
       const { error: upsertErr } = await supabase
         .from("waitlist_interest")
         .upsert(
-          {
-            email: email.trim(),
-            role: audienceRole,     // 'tutor' | 'student'
-            source: "ugc_apply",
-          },
-          { onConflict: "email,role" } // avoids duplicates
+          { email: email.trim(), role: audienceRole, source: "ugc_apply" },
+          { onConflict: "email,role" }
         )
       if (upsertErr) throw upsertErr
 
@@ -151,7 +143,8 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50/30 via-background to-cyan-50/20 overflow-hidden">
+    // ↓ allow page to grow and scroll; prevent sideways scroll only
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-background to-cyan-50/20 overflow-x-hidden">
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(var(--rotate)); }
@@ -188,8 +181,9 @@ export default function ApplyPage() {
         </div>
       </header>
 
-      <main className="h-full pt-20 grid grid-cols-1 lg:grid-cols-2">
-        {/* Left visuals (unchanged) */}
+      {/* ↓ remove fixed height so content can extend and scroll */}
+      <main className="pt-24 grid grid-cols-1 lg:grid-cols-2 items-start">
+        {/* Left visuals */}
         <div className="relative overflow-hidden hidden lg:flex items-center justify-center p-12">
           <div className="absolute inset-0 overflow-hidden">
             <div
@@ -243,8 +237,8 @@ export default function ApplyPage() {
         </div>
 
         {/* Right side - Application form */}
-        <div className="flex items-center justify-center px-6 lg:px-12 py-8">
-          <div className="w-full max-w-xl space-y-8">
+        <div className="flex items-start justify-center px-6 lg:px-12 py-8">
+          <div className="w-full max-w-xl space-y-8 pb-24">
             <div className="space-y-3">
               <h1 className="text-3xl lg:text-4xl font-bold text-foreground">UGC Creator Application</h1>
               <p className="text-base text-muted-foreground leading-relaxed">
