@@ -2,7 +2,17 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { ImageIcon, BookOpen, Calculator, Lightbulb, Atom, Code, PenTool, Globe, Microscope } from "lucide-react"
+import {
+  ImageIcon,
+  BookOpen,
+  Calculator,
+  Lightbulb,
+  Atom,
+  Code,
+  PenTool,
+  Globe,
+  Microscope,
+} from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -11,6 +21,7 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
   const [query, setQuery] = useState("")
   const [subject, setSubject] = useState("")
   const [level, setLevel] = useState("")
+  const [selectedBlock, setSelectedBlock] = useState<"15" | "30" | "60">("15")
   const heroRef = useRef<HTMLElement>(null)
   const lightingRef = useRef<HTMLDivElement>(null)
   const lastUpdate = useRef(0)
@@ -152,7 +163,7 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
           style={{ animationDelay: "0.2s" }}
         >
           Connect with verified tutors in ~30 seconds. Pay only for the time you use.
-        </p> 
+        </p>
 
         <form
           onSubmit={handleSubmit}
@@ -182,31 +193,70 @@ export function HeroSection({ onJoinWaitlist }: { onJoinWaitlist: () => void }) 
                     className="flex-1 w-full min-w-0 md:min-w-[400px] border-0 bg-transparent text-base md:text-lg h-12 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
                   />
 
-                  <div className="flex items-stretch md:items-center gap-3 w-full md:w-auto">
-                    <Select value={subject} onValueChange={setSubject}>
-                      <SelectTrigger className="w-full md:w-[130px] h-11 rounded-full border-2">
-                        <SelectValue placeholder="Subject" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="math">Math</SelectItem>
-                        <SelectItem value="english">English</SelectItem>
-                        <SelectItem value="physics">Physics</SelectItem>
-                        <SelectItem value="chemistry">Chemistry</SelectItem>
-                        <SelectItem value="biology">Biology</SelectItem>
-                        <SelectItem value="cs">Computer Science</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="flex flex-col gap-3 w-full md:w-auto">
+                    <div className="flex items-stretch md:items-center gap-3 w-full md:w-auto">
+                      <Select value={subject} onValueChange={setSubject}>
+                        <SelectTrigger className="w-full md:w-[130px] h-11 rounded-full border-2">
+                          <SelectValue placeholder="Subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="math">Math</SelectItem>
+                          <SelectItem value="english">English</SelectItem>
+                          <SelectItem value="physics">Physics</SelectItem>
+                          <SelectItem value="chemistry">Chemistry</SelectItem>
+                          <SelectItem value="biology">Biology</SelectItem>
+                          <SelectItem value="cs">Computer Science</SelectItem>
+                        </SelectContent>
+                      </Select>
 
-                    <Select value={level} onValueChange={setLevel}>
-                      <SelectTrigger className="w-full md:w-[130px] h-11 rounded-full border-2">
-                        <SelectValue placeholder="Level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="high-school">High School</SelectItem>
-                        <SelectItem value="university">University</SelectItem>
-                        <SelectItem value="advanced">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <Select value={level} onValueChange={setLevel}>
+                        <SelectTrigger className="w-full md:w-[130px] h-11 rounded-full border-2">
+                          <SelectValue placeholder="Level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="high-school">High School</SelectItem>
+                          <SelectItem value="university">University</SelectItem>
+                          <SelectItem value="advanced">Advanced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* block pricing buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedBlock("15")}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                          selectedBlock === "15"
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-background/40 text-foreground/70 border-border hover:border-foreground/40"
+                        }`}
+                      >
+                        $8 / 15m
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedBlock("30")}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                          selectedBlock === "30"
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-background/40 text-foreground/70 border-border hover:border-foreground/40"
+                        }`}
+                      >
+                        $14 / 30m
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedBlock("60")}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                          selectedBlock === "60"
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-background/40 text-foreground/70 border-border hover:border-foreground/40"
+                        }`}
+                      >
+                        $24 / 60m
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

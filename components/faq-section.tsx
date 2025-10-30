@@ -15,49 +15,49 @@ export function FAQSection() {
       category: "General",
       question: "How does Tuno work?",
       answer:
-        "Tuno connects you with verified tutors in ~30 seconds. Simply submit your question, get matched with an expert tutor in your course, and start your session instantly. Pay only for the time you use at 40 cents per minute.",
+        "Tuno connects you with verified tutors in ~30 seconds. Submit your question, get matched with a qualified tutor for your exact course or topic, and start learning right away.",
     },
     {
       category: "Pricing",
       question: "How much does it cost?",
       answer:
-        "Tuno charges 40 cents per minute (~$24/hour) with no subscriptions or commitments. Your first 3 minutes are free, and you only pay for the time you actually use. Sessions are billed by the minute with secure escrow.",
+        "We use simple block pricing. Most sessions fit in one of three blocks: $8 for 15 minutes, $14 for 30 minutes, or $24 for 60 minutes. You pick the block that matches how stuck you are, and you only pay for that. No subscriptions.",
     },
     {
       category: "For Students",
       question: "Are tutors verified?",
       answer:
-        "Yes! All tutors must upload their transcripts and are verified for the specific courses they tutor. Every session is recorded and reviewed to ensure quality and academic integrity.",
+        "Yes. Tutors upload transcripts and are approved for the specific courses they teach. Sessions are recorded and reviewed for quality and academic integrity.",
     },
     {
       category: "General",
       question: "How fast can I get help?",
       answer:
-        "Most students are matched with a tutor in ~30 seconds. No scheduling required—just submit your request and get instant help whenever you need it, 24/7.",
+        "Most students are matched with a tutor in about 30 seconds. No scheduling, no back-and-forth, just instant help whenever you need it.",
     },
     {
       category: "For Students",
       question: "What subjects do you cover?",
       answer:
-        "We cover all major subjects including Math, Physics, Chemistry, Biology, Computer Science, English, and more. Tutors are matched based on your requested subject and level.",
+        "We cover core subjects like Math, Physics, Chemistry, Biology, Computer Science, and English, plus many university-specific courses. We match on subject and level.",
     },
     {
       category: "For Tutors",
       question: "How do I become a tutor?",
       answer:
-        "Join our waitlist and upload your transcript. Once verified, you can start accepting sessions and earning $24/hour. First to accept gets the session—no ranking walls or competition.",
+        "Join our waitlist and upload your transcript. Once we verify you, you can start accepting sessions immediately. First to accept gets the session, so you never get buried in a marketplace.",
     },
     {
       category: "Technical",
       question: "Is my session private and secure?",
       answer:
-        "Absolutely. All sessions are conducted on our secure platform with encrypted video calls. Sessions are recorded for quality assurance and academic integrity, but remain private between you and your tutor.",
+        "Yes. Sessions run on our secure platform, are encrypted, and are only used for quality and integrity checks.",
     },
     {
       category: "For Students",
       question: "Can I end a session anytime?",
       answer:
-        "Yes! You have complete control. End the session whenever you're done, and you'll only be charged for the time used. No minimum session length required.",
+        "Yes. You’re in control. If you finish early, you can wrap up. Our goal is to keep the experience fast and efficient, not to drag it out.",
     },
   ]
 
@@ -65,7 +65,7 @@ export function FAQSection() {
     (faq) =>
       faq.category === activeCategory &&
       (faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        faq.answer.toLowerCase().includes(searchQuery.toLowerCase())),
+        faq.answer.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   return (
@@ -103,9 +103,7 @@ export function FAQSection() {
                 }`}
               >
                 {category}
-                {activeCategory === category && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
-                )}
+                {activeCategory === category && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />}
               </button>
             ))}
           </div>
