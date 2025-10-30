@@ -75,12 +75,18 @@ export function PlatformFeatures() {
               </div>
               <div className="flex-1">
                 <p className="text-lg sm:text-2xl md:text-3xl text-foreground leading-relaxed mb-4 sm:mb-6">
-                  Payment procedure is effortless, with a flat rate for every session at
+                  Payment procedure is effortless, with a flat rate for every time block
                 </p>
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="inline-flex items-baseline gap-2 sm:gap-3 bg-foreground/5 px-5 sm:px-8 py-3 sm:py-4 rounded-2xl">
-                    <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">$0.40</span>
-                    <span className="text-sm sm:text-base md:text-lg text-foreground/60">per minute</span>
+                    <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">$8</span>
+                    <span className="text-sm sm:text-base md:text-lg text-foreground/60">for 15 minutes</span>
+
+                    <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">$14</span>
+                    <span className="text-sm sm:text-base md:text-lg text-foreground/60">for 30 minutes</span>
+
+                    <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">$24</span>
+                    <span className="text-sm sm:text-base md:text-lg text-foreground/60">for 60 minutes</span>
                   </div>
                 </div>
                 <p className="text-sm sm:text-base md:text-xl text-foreground/70 leading-relaxed">
