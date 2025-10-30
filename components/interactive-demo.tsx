@@ -358,7 +358,7 @@ export function InteractiveDemo() {
                           </div>
                           <div className="text-xs sm:text-sm opacity-90 pt-3 border-t border-background/20">
                             <p>Session duration: 15 minutes</p>
-                            <p className="font-bold mt-1">Total cost: $6.00</p>
+                            <p className="font-bold mt-1">Total cost: $8.00</p>
                           </div>
                         </div>
                       </Card>
@@ -520,8 +520,8 @@ export function InteractiveDemo() {
                               <DollarSign className="w-8 h-8 sm:w-10 sm:h-10" />
                             </div>
                             <p className="text-xs sm:text-sm opacity-90 mb-1.5 sm:mb-2">You earned</p>
-                            <p className="text-3xl sm:text-4xl font-bold mb-1.5 sm:mb-2">$6.00</p>
-                            <p className="text-xs sm:text-sm opacity-90">15 minutes @ $0.40/min</p>
+                            <p className="text-3xl sm:text-4xl font-bold mb-1.5 sm:mb-2">$8.00</p>
+                            <p className="text-xs sm:text-sm opacity-90">15 minutes @ $0.43/min</p>
                           </div>
                           <div className="pt-3 sm:pt-4 border-t border-background/20">
                             <p className="text-[11px] sm:text-xs opacity-90">Payment processed instantly</p>
