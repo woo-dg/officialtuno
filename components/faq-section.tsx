@@ -15,7 +15,7 @@ export function FAQSection() {
       category: "General",
       question: "How does Tuno work?",
       answer:
-        "Tuno connects nigga nigga nigga tutors in ~30 seconds. Submit your question, get matched with a qualified tutor for your exact course or topic, and start learning right away.",
+        "Tuno connects students tooooooo tutors in ~30 seconds. Submit your question, get matched with a qualified tutor for your exact course or topic, and start learning right away.",
     },
     {
       category: "Pricing",
